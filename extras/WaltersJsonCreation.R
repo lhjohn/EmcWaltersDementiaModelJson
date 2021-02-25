@@ -2,9 +2,7 @@
 
 createdBy <- 'Henrik John'
 organizationName <- 'Erasmus University Medical Center'
-outputLocation <- '~/Desktop'
-
-baseUrl <- Sys.getenv('baseUrl')
+outputLocation <- 'S:/hjohn/EmcWaltersDementiaModel'
 
 settings <- data.frame(targetCohortId = c(18210),
                        targetCohortName = c('Walters Target 0 Prior 0 Post'),
@@ -30,7 +28,14 @@ modelList <- list()
 #length(modelList) <- 2
 modelList[[1]] <- createModelJson(modelname = 'walters_dementia_model', 
                                   modelFunction = 'glm',
-                                  standardCovariates = NULL,
+                                  standardCovariates = data.frame(covariateId = c(1002,
+                                                                                  8532001),
+                                                                  covariateName = c('age in years',
+                                                                                    'Female'),
+                                                                  points = c(0.20921,
+                                                                             0.12854),
+                                                                  featureExtraction = c('useDemographicsAge',
+                                                                                        'useDemographicsGender')),
                                   cohortCovariateSettings = list(atlasCovariateIds = c(18203,
                                                                                        19820,
                                                                                        18205,
@@ -48,7 +53,7 @@ modelList[[1]] <- createModelJson(modelname = 'walters_dementia_model',
                                                                                          'Smoking status never',
                                                                                          'Smoking status past',
                                                                                          'Smoking status current',
-                                                                                         'History of alcohol problem',
+                                                                                         'History of alcohol problems',
                                                                                          'History of diabetes',
                                                                                          'Depression',
                                                                                          'Stroke',
@@ -92,22 +97,25 @@ modelList[[1]] <- createModelJson(modelname = 'walters_dementia_model',
                                                                             0.220728,
                                                                             0.252833,
                                                                             0.225529),
-                                                                 count = rep(F, length(points)),
-                                                                 ageInteraction = rep(F, length(points)),
-                                                                 lnAgeInteraction = rep(F, length(points))
+                                                                 count = rep(F, 12),
+                                                                 ageInteraction = rep(F, 12),
+                                                                 lnAgeInteraction = rep(F, 12)
                                   ),
                                   
                                   measurementCovariateSettings = NULL, 
                                   measurementCohortCovariateSettings = NULL, 
-                                  ageCovariateSettings = NULL,
-                                  
-                                  finalMapping = 'function(x){xTemp = x; xTemp[x==0] <- 0.039; xTemp[x==1] <- 0.06;xTemp[x==2] <- 0.101;xTemp[x>=3] <- 0.15;return(xTemp) }',
+                                  ageCovariateSettings = list(names = c('age_squared'),
+                                                              ageMaps = list(function(x){return((x-65.608)^2)}),
+                                                              ageIds = 1,
+                                                              analysisIds = c(458),
+                                                              points = c(-0.00339)),
+                                  finalMapping = 'function(x){return(1-0.9969^exp(x))}',
                                   predictionType = 'survival'
 )
 
 
-jsonSet <- createStudyJson(packageName = 'EmcWaltersDementiaModelJson',
-                packageDescription = 'Walters model',
+jsonSet <- createStudyJson(packageName = 'EmcWaltersDementiaModel',
+                packageDescription = 'Walters model replicated by EMC',
                 createdBy = createdBy ,
                 organizationName = organizationName,
                 settings = settings,
@@ -119,5 +127,5 @@ jsonSet <- createStudyJson(packageName = 'EmcWaltersDementiaModelJson',
 
 jsonSet <- Hydra::loadSpecifications(file.path(outputLocation,'existingModelSettings.json'))
 Hydra::hydrate(specifications = jsonSet, 
-               outputFolder = '~/Desktop')
+               outputFolder = 'S:/hjohn/EmcWaltersDementiaModel')
 
